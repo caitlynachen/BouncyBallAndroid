@@ -1,0 +1,121 @@
+package jrJava.bouncyball;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+
+
+public class GameView extends SurfaceView implements Runnable {
+
+	public static int width, height;
+	
+	private SurfaceHolder holder;
+	private Ball ball;
+	private Wall wall;
+	private Deflector deflector;
+	private boolean gameThreadStarted;
+	private Thread thread;
+	
+
+	public GameView(Context c){
+		super(c);
+		
+		thread = new Thread(this);
+		
+		holder = this.getHolder();
+		holder.addCallback(
+				
+					new SurfaceHolder.Callback(){
+
+						public void surfaceChanged(SurfaceHolder arg0,
+								int arg1, int arg2, int arg3) { }
+
+						public void surfaceCreated(SurfaceHolder arg0) {
+							thread.start();
+						}
+
+						public void surfaceDestroyed(SurfaceHolder arg0) { }
+						
+					}
+				);
+	}
+
+
+	public void setGameComponents(Ball _ball, Wall _wall, Deflector _deflector){
+		ball = _ball;
+		wall = _wall;
+		deflector = _deflector;
+	}
+
+
+	public boolean onTouchEvent(MotionEvent e){
+		deflector.respondToSwipe(e);
+		return true;
+	}
+
+
+	public void run(){
+		Canvas c = holder.lockCanvas();
+		width = c.getWidth();
+		 height = c.getHeight();
+		holder.unlockCanvasAndPost(c);
+
+		int margin = 10;
+		wall.setLeft(margin);
+		wall.setRight(width-margin);
+		wall.setTop(margin);
+		wall.setBottom(height-margin);
+
+		//int deflectorWidth = width /6;  //int deflectorWidth = width/6;
+		//int deflectorHeight = 20; //int deflectorHeight = deflectorWidth/10;
+		//int deflectorX = width/2 - deflectorWidth/2;
+		//int deflectorY = height*7/10; //(int)(0.9*height);
+		deflector.setX(width/2);
+		deflector.setY ((int)( 0.7 * height));
+		//deflector.setWidth(deflectorWidth);
+		//deflector.setHeight(deflectorHeight);
+
+		while(true){
+			
+			BubbleManager.rotate();
+
+			BubbleManager.createBubble();
+			ball.move();
+
+			c = holder.lockCanvas();
+
+			c.drawColor(Color.WHITE);
+			ball.draw(c);
+			wall.draw(c);
+			deflector.draw(c);
+			BubbleManager.draw(c);
+			
+			holder.unlockCanvasAndPost(c);
+
+			try{
+				Thread.currentThread().sleep(10);
+			}
+			catch(InterruptedException ie){ }
+		}
+
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
