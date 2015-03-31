@@ -1,0 +1,154 @@
+package jrJava.bouncyball;
+
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.view.MotionEvent;
+
+
+public class Deflector {
+
+	public static int score = 0;
+	private static double momentumConstant = 0.2;
+	private static int upperLimit;
+	private static int lowerLimit;
+	
+	private Bitmap image;
+	private int x, y;
+	private int width, height;
+	private Paint paint, linePaint;
+	
+	private int lastX, lastY;
+	
+	private Wall wall;
+	private Ball ball;
+	
+	
+	public Deflector(){
+		
+		
+		paint = new Paint();
+		paint.setColor(0xFF0000FF);
+		paint.setStyle(Paint.Style.FILL);
+		paint.setTextSize(15);
+		
+		Typeface tf = Typeface.create("Verdana", Typeface.NORMAL);
+		paint.setTypeface(tf);
+		
+		Resources res= MainActivity.context.getResources();
+		image = BitmapFactory.decodeResource(res, R.drawable.deflector_100);
+		width = image.getWidth();
+		height = image.getHeight();
+		
+		linePaint = new Paint();
+		linePaint.setColor(0xFFAAAAAA);
+		linePaint.setStyle(Paint.Style.STROKE);
+	}
+	
+	public void setWall(Wall _wall){ wall = _wall; }
+	public void setBall(Ball _ball){ ball = _ball; }
+	
+	public void setX(int _x){ x= _x; }
+	public void setY(int _y){ 
+		y= _y; 
+		upperLimit = y;
+		lowerLimit = y + 200;
+	}
+	
+	public void setWidth(int _width){ width= _width; }
+	public void setHeight(int _height){ height= _height; }
+	
+	public int getX(){ return x; }
+	public int getY(){ return y; }
+	public int getWidth(){ return width; }
+	public int getHeight(){ return height; }
+	
+	
+	public void draw(Canvas canvas){
+		canvas.drawBitmap(image, x, y, paint );
+		//canvas.drawRect(x, y, x+width, y+height, paint);
+		canvas.drawLine(wall.getLeft(), upperLimit, wall.getRight(), upperLimit, linePaint);
+		canvas.drawLine(wall.getLeft(), lowerLimit, wall.getRight(), lowerLimit, linePaint);
+		canvas.drawText(String.valueOf(score), x+width/2, y+height+15, paint);
+		
+	}
+	
+	
+	public void respondToSwipe(MotionEvent e){
+		
+		if(e.getAction()==MotionEvent.ACTION_DOWN){
+			lastX = (int) e.getX();
+			lastY = (int) e.getY();
+		}
+		
+		if(e.getAction()==MotionEvent.ACTION_MOVE){
+			
+			int fingerX = (int) e.getX();
+			int fingerY = (int) e.getY();
+			
+			int deltaX = fingerX - lastX;
+			int deltaY = fingerY - lastY;
+			
+			x = x + deltaX; 
+			y = y + deltaY;
+			
+			lastX = fingerX;
+			lastY = fingerY;
+			
+			if(x<wall.getLeft()){
+				x = wall.getLeft();
+			}
+			else if(x>wall.getRight()-width){
+				x = wall.getRight()-width;
+			}
+			
+			if(y<upperLimit){
+				y = upperLimit;
+			}
+			else if(y>lowerLimit-height){
+				y = lowerLimit - height;
+			}
+			
+		}
+		
+		
+		else if(e.getAction()==MotionEvent.ACTION_UP){
+			int yBefore = y;
+			y = upperLimit;
+			
+			//check whether the ball is in the boundary.
+			if(ball.getX()>x-ball.getRadius() &&
+			   ball.getX()<x+width+ball.getRadius() &&
+			   ball.getY()>upperLimit-ball.getRadius() &&
+			   ball.getY()<yBefore ){
+				
+				ball.setY( upperLimit-ball.getRadius() );
+				int displacement = y - yBefore;
+				double momentum = momentumConstant*displacement;
+				double newVY = Math.abs(ball.getVY()) + Math.abs(momentum);
+				ball.setVY(-newVY);
+				SoundEffect.play(SoundEffect.springSoundID,0.9f, 0);
+			}
+			
+		}
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
