@@ -1,0 +1,39 @@
+package jrJava.bouncyball;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SurfaceView;
+
+public class MainActivity extends Activity {
+
+	public static Context context;
+	
+	
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		context = this;
+		
+		GameView theView = new GameView(this);
+		
+		setContentView(theView);
+		
+		TiltSensor tiltSensor = new TiltSensor(this);
+		
+		Ball ball = new Ball(tiltSensor);
+		Wall wall = new Wall();
+		Deflector deflector = new Deflector();
+		deflector.setWall(wall);
+		ball.setWall(wall);
+		ball.setDeflector(deflector);
+		deflector.setBall(ball);
+		
+		theView.setGameComponents(ball, wall, deflector);
+		
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+	}
+}
