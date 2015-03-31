@@ -1,0 +1,85 @@
+package jrJava.bouncyball;
+
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
+
+public class TiltSensor {
+
+	private float[] tiltData = new float[]{0, 0, 0};
+	private float[] gravityData = new float[]{0, 0, 0};
+	private float[] magnetData = new float[]{0, 0, 0};
+	
+	private boolean shouldRecalculate;
+	
+	private SensorEventListener listener = new SensorEventListener(){
+		
+		public void onSensorChanged(SensorEvent e){
+			
+			if(e.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
+				System.arraycopy(e.values, 0, gravityData, 0, gravityData.length);
+				shouldRecalculate = true;
+			}
+			else if(e.sensor.getType()==Sensor.TYPE_MAGNETIC_FIELD){
+				System.arraycopy(e.values, 0, magnetData, 0, magnetData.length);
+				shouldRecalculate = true;
+			}
+		}
+		
+		public void onAccuracyChanged(Sensor e, int accuracy){ }
+		
+	};
+	
+	
+	
+	public TiltSensor(Context c){
+		
+		SensorManager sensorManager = (SensorManager) c.getSystemService(Context.SENSOR_SERVICE);
+		
+		Sensor magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		Sensor acceleroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		
+		sensorManager.registerListener(listener, magneticSensor, sensorManager.SENSOR_DELAY_GAME);
+		sensorManager.registerListener(listener, acceleroSensor, sensorManager.SENSOR_DELAY_GAME);
+		
+	}
+	
+	
+	public void getTiltData(float[] data){
+		
+		if(shouldRecalculate){
+			
+			float[] R = new float[]{0, 0, 0, 0, 0, 0, 0, 0, 0 };
+			if(SensorManager.getRotationMatrix(R, null, gravityData, magnetData)){
+				SensorManager.getOrientation(R, tiltData);
+			}
+			shouldRecalculate = false;
+		}
+		
+		System.arraycopy(tiltData, 0, data, 0, data.length);
+	}
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
