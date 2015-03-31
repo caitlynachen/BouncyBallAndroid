@@ -1,0 +1,94 @@
+package jrJava.bouncyball;
+
+import java.util.ArrayList;
+
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+
+
+public class BubbleManager {
+
+	private static ArrayList<Bubble> bubbles;
+	private static Bitmap[] images = new Bitmap[6];
+	
+	static {
+		bubbles = new ArrayList<Bubble>();
+		
+		Resources res = MainActivity.context.getResources();
+		images[0] = BitmapFactory.decodeResource(res, R.drawable.bubble_cyan);
+		images[1] = BitmapFactory.decodeResource(res, R.drawable.bubble_green);
+		images[2] = BitmapFactory.decodeResource(res, R.drawable.bubble_orange);
+		images[3] = BitmapFactory.decodeResource(res, R.drawable.bubble_purple);
+		images[4] = BitmapFactory.decodeResource(res, R.drawable.bubble_red);
+		images[5] = BitmapFactory.decodeResource(res, R.drawable.bubble_yellow);
+
+	}
+	
+	
+	
+	public static void createBubble(){
+		
+		if(bubbles.size()>5) return;
+		if(Math.random()>0.005 && bubbles.size()>0) return;
+		
+		int x = (int) (Math.random()*(GameView.width -100)) + 50;
+		int y = (int) (Math.random()*(GameView.height/2)) + 50;
+		
+		int randomIndex = (int) ((Math.random())*images.length);
+		bubbles.add( new Bubble(x, y, images[randomIndex]) );
+	}
+	
+	public static void rotate(){
+		for(int i=0;i<bubbles.size(); i++){
+			bubbles.get(i).rotate();
+		}
+	}
+	
+	
+	public static void reverse(){
+		for(int i=0; i<bubbles.size();i++){
+			bubbles.get(i).reverse();
+		}
+	}
+	
+	public static void draw(Canvas canvas){
+		for(int i=0; i<bubbles.size(); i++){
+			bubbles.get(i).draw(canvas);
+		}
+	}
+	
+	
+	public static boolean isHit(Ball ball){
+		for(int i=bubbles.size()-1; i>=0; i--){
+			if(bubbles.get(i).isHit(ball)){
+				SoundEffect.play(SoundEffect.popSoundID, 0.9f, 0);
+				bubbles.remove(i);
+				Deflector.score += 14;
+				reverse();
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
