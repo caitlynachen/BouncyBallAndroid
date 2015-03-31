@@ -1,0 +1,51 @@
+package jrJava.bouncyball;
+
+import android.graphics.Canvas;
+import android.graphics.Paint;
+
+public class Wall {
+
+	private int left = 50;
+	private int top = 50;
+	private int right = 400;
+	private int bottom = 500;
+	
+	private Paint paint;
+	
+	public Wall(){
+		paint = new Paint();
+		paint.setColor(0xFF555555);
+		paint.setStyle(Paint.Style.STROKE);
+	}
+	
+	public int getLeft(){ return left; }
+	public int getRight(){ return right; }
+	public int getTop(){ return top; }
+	public int getBottom(){ return bottom; }
+	
+	public void setLeft(int _left){ left = _left; }
+	public void setRight(int _right){ right = _right; }
+	public void setTop(int _top){ top = _top; }
+	public void setBottom(int _bottom){ bottom = _bottom; }
+	
+	
+	public void draw(Canvas canvas){
+		canvas.drawLine(left, top, right, top, paint);
+		canvas.drawLine(left, top, left, bottom, paint);
+		canvas.drawLine(right, top, right, bottom, paint);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
