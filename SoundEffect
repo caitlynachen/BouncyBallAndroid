@@ -1,0 +1,44 @@
+package jrJava.bouncyball;
+
+import android.media.AudioManager;
+import android.media.SoundPool;
+
+public class SoundEffect {
+
+	private static SoundPool soundPool;
+	
+	public static int popSoundID;
+	public static int bounceSoundID;
+	public static int springSoundID;
+	
+	static{
+		
+		soundPool = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
+			popSoundID = soundPool.load(MainActivity.context, R.raw.pop,1);
+			bounceSoundID = soundPool.load(MainActivity.context, R.raw.bounce2,1);
+			springSoundID = 	soundPool.load(MainActivity.context, R.raw.spring2,1);
+			
+
+
+		
+	}
+	
+	//Constructor:
+	//public SoundPool(int maxStream, int streamType. int srcQuality);
+	//						3, AudioManager.STREAM_MUSIC,
+	//
+	// public int load(Context context, int resourceID, int priority);
+	//		
+	//public int play(int SoundID, float L_volume, float R_volume,* int priority, int loop, float rate);
+	//
+	//public vod stop(int soundID); 
+	
+	
+	public static int play(int soundID, float volume, int loop){
+		return soundPool.play(soundID, volume, volume, 1, loop, 1.0f);
+	}
+	
+	public static void stop(int soundID){
+		soundPool.stop(soundID);
+	}
+}
