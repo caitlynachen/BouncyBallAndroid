@@ -1,0 +1,102 @@
+package jrJava.bouncyball;
+
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+
+
+public class Bubble {
+	
+	private int rotationCenterX, rotationCenterY;
+	private int rotationRadius;
+	private double rotationAngle;
+	private double angleChangeRate;
+	
+	public static int radius;
+	
+	private int x, y; // center
+	private Paint paint;
+	private Bitmap image;
+	private int alpha, alphaChange =1;
+	
+	
+	public Bubble(int _rotationCenterX, int _rotationCenterY, Bitmap _image){
+		rotationCenterX = _rotationCenterX;
+		rotationCenterY = _rotationCenterY;
+		rotationRadius = 20;
+		rotationAngle = 10;
+		angleChangeRate = Math.random()*0.1;
+		
+		x = (int) (rotationCenterX +rotationRadius *Math.cos(rotationAngle));
+		y = (int) (rotationCenterY +rotationRadius *Math.sin(rotationAngle));
+		
+		image = _image;
+		
+		radius = image.getWidth()/2;
+		
+		paint = new Paint();
+		//paint.setColor(colorCode);
+		paint.setAntiAlias(true);
+		paint.setStyle(Paint.Style.FILL);
+	}
+	
+	public void rotate(){
+		rotationAngle = rotationAngle + angleChangeRate;
+		x = (int) (rotationCenterX +rotationRadius *Math.cos(rotationAngle));
+		y = (int) (rotationCenterY +rotationRadius *Math.sin(rotationAngle));
+	}
+	
+	public void reverse() {
+		
+		rotationAngle = -rotationAngle;
+	}
+	
+	
+	public void draw(Canvas canvas){
+		alpha = alpha +alphaChange;
+		if(alpha>255){
+			alpha = 255;
+			alphaChange = -alphaChange;
+		}
+		
+		else if(alpha<0){
+			alpha = 0;
+			alphaChange = -alphaChange;
+			
+		}
+		
+		paint.setAlpha(alpha);
+		
+		canvas.drawBitmap(image,x-radius ,y-radius, paint);
+		
+	}
+	
+	
+	
+	public boolean isHit(Ball ball){
+		
+		if(alpha<100) return false;
+		
+		int sumOfSqaures = (x-ball.getX())*(x-ball.getX())+(y-ball.getY())*(y-ball.getY());
+		double distance = Math.sqrt(sumOfSqaures);
+		
+		if(distance<=(radius+ball.getRadius())) return true;
+		return false;
+	}
+
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
