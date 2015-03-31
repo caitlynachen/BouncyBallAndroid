@@ -1,0 +1,149 @@
+# BouncyBallAndroid
+package jrJava.bouncyball;
+
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+
+public class Ball {
+
+	private int x = 150, y = 250;  // center
+	private int radius;
+	
+	private Bitmap[] images = new Bitmap[2];
+	private int drawCount = 0;
+	
+
+	private double vx = 5.0, vy = 10.0;
+	
+	private Paint ballPaint;
+	private Wall wall;
+	private Deflector deflector;
+	private TiltSensor tiltSensor;
+	private float[] tilt = new float[3];
+	
+	
+	public Ball(TiltSensor _tiltSensor){
+		ballPaint = new Paint();
+		ballPaint.setAntiAlias(true);
+		ballPaint.setColor(0xFFFF0000);
+		ballPaint.setStyle(Paint.Style.FILL);
+		tiltSensor = _tiltSensor;
+		
+		Resources res = MainActivity.context.getResources();
+		images[0] = BitmapFactory.decodeResource(res, R.drawable.spike_ball1);
+		images[1]= BitmapFactory.decodeResource(res, R.drawable.spike_ball2);
+		radius = images[0].getWidth()/2;
+
+	}
+	
+	
+	public int getX(){ return x; }
+	public int getY(){ return y; }
+	public double getVX(){ return vx; }
+	public double getVY(){ return vy; }
+	public int getRadius(){ return radius; }
+	
+	public void setX(int _x){ x = _x; }
+	public void setY(int _y){ y = _y; }
+	public void setVX(double _vx){ vx = _vx; }
+	public void setVY(double _vy){ vy = _vy; }
+	
+	
+	public void setWall(Wall _wall){
+		wall = _wall;
+	}
+	
+	public void setDeflector(Deflector _deflector){
+		deflector = _deflector;
+	}
+	
+	
+	public void move(){
+		x = x + (int) vx;
+		y = y + (int) vy;
+		
+		tiltSensor.getTiltData(tilt);
+		
+		vx += 0.1*tilt[2];
+		if(vx<-10.0){
+			vx = -10.0;
+		}
+		else if(vx>10.0){
+			vx = 10.0;
+		}
+		
+		vy += -0.2*tilt[1];
+		if(vy<-15.0){
+			vy = -15.0;
+		}
+		else if(vy>15.0){
+			vy = 15.0;
+		}
+		
+		
+		//if(vy>0) {
+		//	vy = vy + 0.2;
+		//}
+		//else if(vy<0){
+		//	vy = vy + 0.3;
+		//}
+		
+		
+		if(x<wall.getLeft()+radius){
+			vx = -vx/1.5;
+			x = wall.getLeft()+radius;
+		}
+		else if(x>wall.getRight()-radius){
+			vx = -vx/1.5;
+			x = wall.getRight()-radius;
+		}
+			 
+			 
+		if(y<wall.getTop()+radius){
+			vy = -vy;
+			y = wall.getTop()+radius;
+		}
+		
+		
+		if(x>deflector.getX()-radius &&
+		   x<deflector.getX()+deflector.getWidth()+radius &&
+		   y>deflector.getY()-radius &&
+		   y<deflector.getY()+4*deflector.getHeight()){
+			
+			y = deflector.getY()-radius;
+			vy = -vy/1.5;
+			SoundEffect.play(SoundEffect.bounceSoundID, 0.8f, 0);
+		}
+		
+		BubbleManager.isHit(this);
+		
+	}
+	
+	
+	public void draw(Canvas canvas){
+		//canvas.drawCircle(x, y, radius, ballPaint);
+		drawCount++;
+		if(drawCount==10) drawCount=0;
+		canvas.drawBitmap(images[drawCount/5], x-radius, y-radius, ballPaint);
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
